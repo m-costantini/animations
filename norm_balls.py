@@ -1,48 +1,51 @@
 import numpy as np
 import plotly.graph_objects as go
-from math import sqrt
+from plotly.subplots import make_subplots
+from math import sqrt, pi
 
-n_points = 1000
-x_support = np.linspace(-1, 1, n_points)
-y_support = np.linspace(-1, 1, n_points)
-x, y = np.meshgrid(x_support,y_support)
-
-camera = dict( eye=dict(x=2, y=2, z=1) )
-
-sum_quares = lambda x, y: x**2 + y**2
-
-v3 = lambda v1v2: sqrt(1-sum_quares(v1v2[0],v1v2[1])) if sum_quares(v1v2[0],v1v2[1]) <= 1 else None
-get_z = lambda v1, v2: np.array(list(map(v3, list(zip(v1,v2)))))
-
-z = get_z(x.flatten(),y.flatten()).reshape(np.shape(x))
-z_flat = z.flatten()
-z_minus = [None for i in range(len(z_flat))]
-
-# print(z)
-# print(z_minus)
+# # L2 ball
+u, v = np.mgrid[0:2*np.pi:100j, 0:2*np.pi:100j]
+x = np.sin(u) * np.cos(v)
+y = np.sin(u) * np.sin(v)
+z = np.cos(u)
+fig = go.Figure(data=[go.Surface(x=x, y=y, z=z, opacity=0.5, colorscale="Bluered", showscale=False)])
+fig.show()
 
 
-for i in range(len(z_flat)):
-    if z_flat[i] is not None:
-        z_minus[i] = -z_flat[i]
+# # L1 ball - plot all 8 surfaces
+# do grid by hand to get triangular face
+n_points = 2
+u_1D = np.linspace(0,0.5,n_points)
+u = np.zeros((n_points,n_points))
+t = np.zeros((n_points,n_points))
+for idx, u_val in enumerate(u_1D):
+    t_1D = np.linspace(u_val,1-u_val,n_points)
+    u[idx,:] = u_val*np.ones((n_points,))
+    t[idx,:] = t_1D
+x_plus = t - u
+x_minus = -(t - u)
+y_plus = 1 - t - u
+y_minus = -(1 - t - u)
+z_plus = 2*u
+z_minus = -2*u
+fig = go.Figure(data=[go.Surface(x=x_plus, y=y_plus, z=z_plus, opacity=0.5, colorscale="Bluered", showscale=False)])
+fig.add_trace(go.Surface(x=x_plus, y=y_minus, z=z_plus, opacity=0.5, colorscale="Bluered", showscale=False))
+fig.add_trace(go.Surface(x=x_minus, y=y_minus, z=z_plus, opacity=0.5, colorscale="Bluered", showscale=False))
+fig.add_trace(go.Surface(x=x_minus, y=y_plus, z=z_plus, opacity=0.5, colorscale="Bluered", showscale=False))
+fig.add_trace(go.Surface(x=x_plus, y=y_plus, z=z_minus, opacity=0.5, colorscale="Bluered", showscale=False))
+fig.add_trace(go.Surface(x=x_plus, y=y_minus, z=z_minus, opacity=0.5, colorscale="Bluered", showscale=False))
+fig.add_trace(go.Surface(x=x_minus, y=y_minus, z=z_minus, opacity=0.5, colorscale="Bluered", showscale=False))
+fig.add_trace(go.Surface(x=x_minus, y=y_plus, z=z_minus, opacity=0.5, colorscale="Bluered", showscale=False))
+fig.show()
 
-z_minus = np.array(z_minus).reshape(np.shape(z))
 
-fig = go.Figure(data=[go.Surface(z=z, x=x_support, y=y_support, opacity=0.5, colorscale="Bluered", showscale=False)])
-fig.add_trace(go.Surface(z=z_minus, x=x_support, y=y_support, opacity=0.5, colorscale="Bluered", showscale=False))
-
-#
-# fig.update_traces(contours_z=dict(show=True, usecolormap=True, highlightcolor="limegreen", project_z=True,
-#         start=dic['start'], end=dic['end'], size=dic['size'], width=16.0, highlightwidth=10.0, highlight=True))
-
-aux = 5
-margin=go.layout.Margin(l=aux, r=aux, b=aux, t=aux, pad = 0)
-fig.update_layout(scene_camera=camera, autosize=False, width=800, height=800, margin=margin)
-#
-# fontsize = 50
-# fig.update_layout(scene = dict(xaxis_title=dict(text="λ<sub>1</sub>", font_size=fontsize),
-#                                yaxis_title=dict(text="λ<sub>2</sub>", font_size=fontsize),
-#                                zaxis_title='', zaxis_color='#ffffff'))
-
-
+# Infinite ball
+linear_face_1, linear_face_2 = np.mgrid[-1:1:2j, -1:1:2j]
+constant_face = np.ones(np.shape(linear_face_1))
+fig = go.Figure(data=[go.Surface(x=constant_face, y=linear_face_1, z=linear_face_2, opacity=0.5, colorscale="Bluered", showscale=False)])
+fig.add_trace(go.Surface(x=-constant_face, y=linear_face_1, z=linear_face_2, opacity=0.5, colorscale="Bluered", showscale=False))
+fig.add_trace(go.Surface(x=linear_face_2, y=constant_face, z=linear_face_1, opacity=0.5, colorscale="Bluered", showscale=False))
+fig.add_trace(go.Surface(x=linear_face_2, y=-constant_face, z=linear_face_1, opacity=0.5, colorscale="Bluered", showscale=False))
+fig.add_trace(go.Surface(x=linear_face_1, y=linear_face_2, z=constant_face, opacity=0.5, colorscale="Bluered", showscale=False))
+fig.add_trace(go.Surface(x=linear_face_1, y=linear_face_2, z=-constant_face, opacity=0.5, colorscale="Bluered", showscale=False))
 fig.show()
