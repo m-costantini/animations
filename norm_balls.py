@@ -3,18 +3,17 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 from math import sqrt, pi
 
-t = np.linspace(0,2*pi,36) # for parametric curve defining camera position
+t_vec = np.linspace(0,pi/2,8) # for parametric curve defining camera position
 
-for idx_t, t in enumerate(t):
+for idx_t, t in enumerate(t_vec[:-1]):
 
-    print('Generating figure', t+1, '/', len(t), '...', end='')
     sqrt_mag = 2.1
     eye_x = sqrt_mag*np.sin(t)
     eye_y = sqrt_mag*np.cos(t)
 
-    pad = 0
+    pad = -0.05
     subplot_specs = {'type': 'surface', 'l':pad, 'r':pad, 't':pad, 'b':pad}
-    titles = [r'$\large{\alpha=1}$', r'$\large{\alpha=2}$', r'$\large{\alpha=3}$', r'$\large{\alpha=4}$']
+    titles = [r'$\huge{p=1/2}$', r'$\huge{p=1}$', r'$\huge{p=2}$', r'$\huge{p=\infty}$']
     fig = make_subplots(rows=2, cols=2,
         specs=[[subplot_specs, subplot_specs], [subplot_specs, subplot_specs]],
         subplot_titles=titles,
@@ -59,20 +58,24 @@ for idx_t, t in enumerate(t):
         xaxis_title='', yaxis_title='', zaxis_title='', # no axis labels
         camera=dict(eye=dict(x=eye_x, y=eye_y, z=1.2))) # set camera position (zoom+angle)
 
-    the_margin = go.layout.Margin(l=0, r=0, b=0, t=0) # gte rid of white margins
-    fig.update_layout(scene1=scene_dict, scene2=scene_dict, scene3=scene_dict, scene4=scene_dict,  width=1000, height=1000, margin=the_margin)
+    the_margin = go.layout.Margin(l=0, r=0, b=0, t=80) # get rid of white margins
+
+    the_title_1 = r'$\huge{p\text{-balls} \hspace{0.5em} \text{in} \hspace{0.5em} \mathbb{R}^3 {:} \hspace{0.5em} (|x_1|^p + |x_2|^p + |x_3|^p)^{1/p} = 1}$'
+    title_x_1 = 0.55
+
+    the_title_2 = r'$\huge{\text{Unit} \hspace{0.5em} p\text{-balls} \hspace{0.5em} \text{in} \hspace{0.5em} \mathbb{R}^3}$'
+    title_x_2 = 0.52
+
+    fig.update_layout(scene1=scene_dict, scene2=scene_dict, scene3=scene_dict, scene4=scene_dict,  width=1000, height=1000, margin=the_margin,
+    title_text=the_title_2, title_font_size=30, title_x=title_x_2, title_y=0.95)
 
     # make the titles closer to the plots
-    fig['layout']['annotations'][0]['y'] = 0.95
-    fig['layout']['annotations'][1]['y'] = 0.95
-    fig['layout']['annotations'][2]['y'] = 0.45
-    fig['layout']['annotations'][3]['y'] = 0.45
-    # change title fontsaizes
-    for annotation in fig['layout']['annotations']:
-        annotation['font'] = {'size':26}
+    fig['layout']['annotations'][0]['y'] = 0.93
+    fig['layout']['annotations'][1]['y'] = 0.93
+    fig['layout']['annotations'][2]['y'] = 0.47
+    fig['layout']['annotations'][3]['y'] = 0.47
 
-    print('saving figure...', end='')
-    save_name = 'norm_ball_figures/balls_fig_' + str(idx_t+1) + '.png'
+    save_name = 'norm_balls_figures/balls_fig_' + str(idx_t+1) + '.png'
     fig.write_image(save_name)
 
-    print('done')
+    print('Saved figure', idx_t+1, '/', len(t_vec)-1)
