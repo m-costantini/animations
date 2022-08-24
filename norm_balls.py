@@ -29,7 +29,8 @@ for idx_t, t in enumerate(t_vec[:-1]): # to create the different camera views
     #  MAKE BALLS
 
     # L2 ball
-    u, v = np.mgrid[0:2*np.pi:500j, 0:2*np.pi:500j]
+    # u, v = np.mgrid[0:2*np.pi:500j, 0:2*np.pi:500j] # Original 
+    u, v = np.mgrid[0:np.pi:500j, 0:2*np.pi:500j] # Cedric's version
     x2 = np.sin(u) * np.cos(v)
     y2 = np.sin(u) * np.sin(v)
     z2 = np.cos(u)
