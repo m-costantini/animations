@@ -20,6 +20,7 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import numpy as np
 from scipy import linalg
+import matplotlib.pyplot as plt
 
 
 # generate parametric rotated ellipse for plotting
@@ -130,7 +131,18 @@ W = S_inv_sqrt @ V
 x_ell_2 = W[0,:]
 y_ell_2 = W[1,:]
 
-t_prime = np.arctan2(y_ell_2, x_ell_2)
+
+# fig, ax = plt.subplots(1,2,figsize=(10,4), dpi=50)
+# ax[0].scatter(x_circ, x_circ)
+# ax[1].scatter(x_ell_2, y_ell_2)
+
+t_prime = np.arctan2(y_ell_2, x_ell_2) + pi # +pi because arctan2 returns values in -pi:pi
+
+# ax[0].scatter(np.arange(len(t_prime)), t)
+# ax[1].scatter(np.arange(len(t_prime)), t_prime)
+# plt.show()
+
+# print('t_prime:', t_prime)
 
 n_bins = 36
 bins_pi = np.linspace(0,2*pi,n_bins+1)
@@ -141,25 +153,6 @@ counts = np.histogram(t, bins=bins_pi)[0]
 norm_counts_t = counts/max(counts)
 counts = np.histogram(t_prime, bins=bins_pi)[0]
 norm_counts_t_prime = counts/max(counts)
-
-# fig = go.Figure(go.Barpolar(
-#     r=[3.5, 1.5, 2.5, 4.5, 4.5, 4, 3],
-#     theta=[65, 15, 210, 110, 312.5, 180, 270],
-#     width=[20,15,10,20,15,30,15,],
-#     marker_color=["#E4FF87", '#709BFF', '#709BFF', '#FFAA70', '#FFAA70', '#FFDF70', '#B6FFB4'],
-#     marker_line_color="black",
-#     marker_line_width=2,
-#     opacity=0.8
-# ))
-#
-# fig.update_layout(
-#     template=None,
-#     polar = dict(
-#         radialaxis = dict(range=[0, 5], showticklabels=False, ticks=''),
-#         angularaxis = dict(showticklabels=False, ticks='')
-#     )
-# )
-
 
 fig.add_trace(go.Barpolar(
     r=norm_counts_t,
