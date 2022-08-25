@@ -15,11 +15,13 @@ marina.costant@gmail.com
 """
 
 from math import pi, sqrt
+import numpy as np
+from scipy import linalg
+
 import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
-import numpy as np
-from scipy import linalg
+
 import matplotlib.pyplot as plt
 
 
@@ -56,20 +58,23 @@ S_inv_sqrt = linalg.inv(linalg.sqrtm(S))
 x_ell_2 = W[0,:]
 y_ell_2 = W[1,:]
 
+
+
+# -----------------------------------------------------
+# Plots ellipses with plotly
+# -----------------------------------------------------
 # Figure
-titles = ['Circle', 'Ellipse 1', 'Ellipse 2']
-subplot_specs = {'type': 'barpolar'}
-fig = make_subplots(rows=1, cols=3, subplot_titles=titles, specs=[[subplot_specs, subplot_specs, subplot_specs]])
-
-# -----------------------------------------------------
-# Plotting the curves
-# -----------------------------------------------------
-# fig.add_trace(go.Scatter(x=0.8*x_circ, y=0.8*y_circ), row=1, col=1) # 0.8 for it to look better
-# fig.add_trace(go.Scatter(x=x_ell, y=y_ell), row=1, col=2)
-# fig.add_trace(go.Scatter(x=x_ell_2, y=y_ell_2), row=1, col=3)
-
-fig.update_yaxes(range=[-2,2], scaleanchor="x", scaleratio=1, constrain="domain")
-fig.update_xaxes(range=[-2,2])
+# titles = ['Circle', 'Ellipse 1', 'Ellipse 2']
+# subplot_specs = {'type': 'barpolar'}
+# fig = make_subplots(rows=1, cols=3, subplot_titles=titles, specs=[[subplot_specs, subplot_specs, subplot_specs]])
+#
+#
+# # fig.add_trace(go.Scatter(x=0.8*x_circ, y=0.8*y_circ), row=1, col=1) # 0.8 for it to look better
+# # fig.add_trace(go.Scatter(x=x_ell, y=y_ell), row=1, col=2)
+# # fig.add_trace(go.Scatter(x=x_ell_2, y=y_ell_2), row=1, col=3)
+#
+# fig.update_yaxes(range=[-2,2], scaleanchor="x", scaleratio=1, constrain="domain")
+# fig.update_xaxes(range=[-2,2])
 
 # fig.update_yaxes(scaleanchor="x", scaleratio=1, constrain="domain")
 
@@ -116,63 +121,104 @@ fig.update_xaxes(range=[-2,2])
 
 
 # -----------------------------------------------------
-# Polar plot
+# Polar plot in plotly
 # -----------------------------------------------------
+# n_points = 10000
+#
+# t = np.random.uniform(low=0.0, high=2*pi, size=(n_points,))
+#
+# # x_ell = Rx*np.cos(t)*np.cos(theta) - Ry*np.sin(t)*np.sin(theta)
+# # y_ell = Rx*np.cos(t)*np.sin(theta) + Ry*np.sin(t)*np.cos(theta)
+# x_circ = R*np.cos(t)
+# y_circ = R*np.sin(t)
+# V = np.vstack((x_circ,y_circ))
+# W = S_inv_sqrt @ V
+# x_ell_2 = W[0,:]
+# y_ell_2 = W[1,:]
+#
+# t_prime = np.arctan2(y_ell_2, x_ell_2) + pi # +pi because arctan2 returns values in -pi:pi
+#
+# n_bins = 36
+# bins_pi = np.linspace(0,2*pi,n_bins+1)
+# bins = bins_pi*360/(2*pi)
+# d_bin = bins[1]
+#
+# counts = np.histogram(t, bins=bins_pi)[0]
+# norm_counts_t = counts/max(counts)
+# counts = np.histogram(t_prime, bins=bins_pi)[0]
+# norm_counts_t_prime = counts/max(counts)
+#
+# fig.add_trace(go.Barpolar(
+#     r=norm_counts_t,
+#     theta=bins+(d_bin/2),
+#     width=d_bin*np.ones((len(norm_counts_t),)),
+#     marker_line_color="black",
+#     marker_line_width=2,
+#     opacity=0.8
+#     ), row=1, col=1)
+#
+# fig.add_trace(go.Barpolar(
+#     r=norm_counts_t_prime,
+#     theta=bins+(d_bin/2),
+#     width=d_bin*np.ones((len(norm_counts_t_prime),)),
+#     marker_line_color="black",
+#     marker_line_width=2,
+#     opacity=0.8
+#     ), row=1, col=2)
+#
+# fig.update_layout(showlegend=False)
+# fig.show()
+
+
+
+
+
+
+
+# -----------------------------------------------------
+# Polar plot in matplotlib
+# -----------------------------------------------------
+
+
+fig, ax = plt.subplots(1,2, figsize=(15,4), subplot_kw={'projection': 'polar'}, dpi=100)
+
+
 n_points = 10000
-
 t = np.random.uniform(low=0.0, high=2*pi, size=(n_points,))
-
-# x_ell = Rx*np.cos(t)*np.cos(theta) - Ry*np.sin(t)*np.sin(theta)
-# y_ell = Rx*np.cos(t)*np.sin(theta) + Ry*np.sin(t)*np.cos(theta)
-x_circ = R*np.cos(t)
-y_circ = R*np.sin(t)
+x_circ = np.cos(t)
+y_circ = np.sin(t)
 V = np.vstack((x_circ,y_circ))
 W = S_inv_sqrt @ V
-x_ell_2 = W[0,:]
-y_ell_2 = W[1,:]
-
-
-# fig, ax = plt.subplots(1,2,figsize=(10,4), dpi=50)
-# ax[0].scatter(x_circ, x_circ)
-# ax[1].scatter(x_ell_2, y_ell_2)
-
+x_ell = W[0,:]
+y_ell = W[1,:]
 t_prime = np.arctan2(y_ell_2, x_ell_2) + pi # +pi because arctan2 returns values in -pi:pi
-
-# ax[0].scatter(np.arange(len(t_prime)), t)
-# ax[1].scatter(np.arange(len(t_prime)), t_prime)
-# plt.show()
-
-# print('t_prime:', t_prime)
 
 n_bins = 36
 bins_pi = np.linspace(0,2*pi,n_bins+1)
 bins = bins_pi*360/(2*pi)
-d_bin = bins[1]
+d_bin = bins_pi[1]
+
 
 counts = np.histogram(t, bins=bins_pi)[0]
 norm_counts_t = counts/max(counts)
 counts = np.histogram(t_prime, bins=bins_pi)[0]
 norm_counts_t_prime = counts/max(counts)
 
-fig.add_trace(go.Barpolar(
-    r=norm_counts_t,
-    theta=bins+(d_bin/2),
-    width=d_bin*np.ones((len(norm_counts_t),)),
-    marker_line_color="black",
-    marker_line_width=2,
-    opacity=0.8
-    ), row=1, col=1)
+print(bins[:-1], counts, d_bin)
 
-fig.add_trace(go.Barpolar(
-    r=norm_counts_t_prime,
-    theta=bins+(d_bin/2),
-    width=d_bin*np.ones((len(norm_counts_t_prime),)),
-    marker_line_color="black",
-    marker_line_width=2,
-    opacity=0.8
-    ), row=1, col=2)
+#
+# ax[0].bar(
+#     x=[0,np.pi/4,np.pi/2],
+#     height=[1,2,3],
+#     bottom=0,
+#     width=np.pi/16)
 
 
-fig.update_layout(showlegend=False)
+ax[0].bar(
+    x=bins_pi[:-1]+d_bin/2,
+    height=norm_counts_t,
+    bottom=0,
+    width=0.9*d_bin)
 
-fig.show()
+
+plt.show()
