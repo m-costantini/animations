@@ -1,7 +1,7 @@
 """
-Code to sample uniformly from an ellipse
+Code to sample uniformly from the boundary of an ellipse
 
-Follows the explanation of Sebastien Bubeck in his lecture "Fice miracles of Mirror Descent"
+Follows the explanation of Sebastien Bubeck in his lecture "Five miracles of Mirror Descent"
 https://youtu.be/36zUR3QdOD0?list=PLAPSKVSdi0obG1b3w4k41JMLFbyBJS5AQ&t=2280
 (Lecture 8/9, minute 38:00)
 
@@ -9,6 +9,7 @@ References used for this code:
 https://math.stackexchange.com/questions/2645689/what-is-the-parametric-equation-of-a-rotated-ellipse-given-the-angle-of-rotation
 https://en.wikipedia.org/wiki/Matrix_representation_of_conic_sections
 https://www.geeksforgeeks.org/using-matplotlib-for-animations/
+https://en.wikipedia.org/wiki/N-sphere
 
 August 2022
 marina.costant@gmail.com
@@ -21,7 +22,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-plt.rcParams["mathtext.fontset"] = 'cm'
+plt.rcParams["mathtext.fontset"] = 'cm' # for Latex-like typesetting the titles
 
 # Circle and ellipse settings
 theta = pi/4 # tilting angle = 45 degrees
@@ -39,13 +40,16 @@ S = np.array([[A,B/2],[B/2,C]])
 S_inv_sqrt = linalg.inv(linalg.sqrtm(S))
 
 def get_points_ellipse(points_circle, S_inv_sqrt):
+    """
+    Transformation f: u --> S^{-1/2}u so that if u is uniformly distributed in the boundary of the circle, then f(u) is uniformly distributed on the boundary of the ellipse
+    """
     x_circle = np.cos(points_circle)
     y_circle = np.sin(points_circle)
     V = np.vstack((x_circle, y_circle))
     W = S_inv_sqrt @ V
-    x_ell_Sis = W[0,:]
+    x_ell_Sis = W[0,:] # Sis = S inverse square
     y_ell_Sis = W[1,:]
-    points_ellipse = np.arctan2(x_ell_Sis, y_ell_Sis) + pi # points of ellipe
+    points_ellipse = np.arctan2(x_ell_Sis, y_ell_Sis) + pi # +pi because arctan2 gives results in [-pi, +pi]
     return points_ellipse
 
 fig, ax = plt.subplots(1,2, figsize=(8,4), subplot_kw={'projection': 'polar'}, dpi=100)
@@ -107,12 +111,12 @@ def animate(f):
                     '\n'
                     r'$\mathrm{Equation{:}} x^TIx=1$'
                     '\n'
-                    r'$\mathrm{Uniform\ sampling{:}} s \sim \mathcal{U}$', fontsize=18, pad=10)
+                    r'$\mathrm{Sampling{:}} s \sim \mathcal{U}(S^1)$', fontsize=18, pad=10)
     ax[1].set_title(r'$\mathrm{\mathbf{Ellipse}}$'
                     '\n'
                     r'$\mathrm{Equation{:}} x^T \Sigma x=1$'
                     '\n'
-                    r'$\mathrm{Uniform\ sampling{:}} s \sim \Sigma^{-1/2}\mathcal{U}$', fontsize=18, pad=10)
+                    r'$\mathrm{Sampling{:}} s \sim \Sigma^{-1/2}\mathcal{U}(S^1)$', fontsize=18, pad=10)
     fig.subplots_adjust(
         left  = 0.125,  # the left side of the subplots of the figure
         right = 0.9,    # the right side of the subplots of the figure
